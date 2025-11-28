@@ -1,56 +1,44 @@
-# config.py
-# 配置和LLM客户端初始化
+# config.py (最终云端优化版)
 
 import os
-from http import HTTPStatus
-from dashscope import Application
 
-# 阿里云百炼智能体应用调用配置
-# 配置优先级（从高到低）：
-# 1. config_local.py 中的配置（本地配置文件，不提交到版本控制）
-# 2. 环境变量
-# 3. 默认值
-# 
-# 请确保您已设置以下之一：
-# - 创建 config_local.py 文件并设置 DASHSCOPE_API_KEY 和 APP_ID
-# - 设置环境变量 DASHSCOPE_API_KEY 和 APP_ID
-# 
-# 如果未设置，代码将使用默认配置，但实际运行时会失败。
+print("[配置加载] 正在从环境变量加载配置...")
 
-# 尝试从本地配置文件导入（如果存在）
-try:
-    import config_local
-    LOCAL_API_KEY = getattr(config_local, 'DASHSCOPE_API_KEY', None)
-    LOCAL_APP_ID = getattr(config_local, 'APP_ID', None)
-    API_ID = getattr(config_local, 'API_ID', None)
-    _has_local_config = LOCAL_API_KEY is not None
-except ImportError:
-    _has_local_config = False
-    LOCAL_API_KEY = None
-    LOCAL_APP_ID = None
-    API_ID = None
+# --- API Key 加载 ---
+# 优先从 'DASHSCOPE_API_KEY' 读取，这是阿里云SDK的官方推荐名称。
+# 如果找不到，再从通用的 'API_KEY' 读取。
+# 关键：不再提供任何默认值！如果都找不到，API_KEY 将是 None。
+API_KEY = os.environ.get("DASHSCOPE_API_KEY") or os.environ.get("API_KEY")
 
-# 阿里云百炼 API Key（优先使用本地配置，其次环境变量，最后默认值）
-API_KEY = LOCAL_API_KEY if _has_local_config else os.environ.get("DASHSCOPE_API_KEY", "YOUR_DASHSCOPE_API_KEY")
-# 智能体应用 ID（优先使用本地配置，其次环境变量，最后默认值）
-APP_ID = LOCAL_APP_ID if _has_local_config else os.environ.get("APP_ID", "YOUR_APP_ID")
+# --- App ID 加载 ---
+# 关键：不再提供任何默认值！
+APP_ID = os.environ.get("APP_ID")
+
+# --- 启动时检查 ---
+# 在程序启动时就进行严格检查，如果关键配置缺失，直接打印错误。
+if not API_KEY:
+    print("[配置错误] 严重错误：环境变量 'DASHSCOPE_API_KEY' 或 'API_KEY' 未设置或为空！")
+else:
+    # 为了安全，只打印部分key来确认加载成功
+    print(f"[配置加载] API Key 加载成功 (开头: {API_KEY[:5]}...)")
+
+if not APP_ID:
+    print("[配置错误] 严重错误：环境变量 'APP_ID' 未设置或为空！")
+else:
+    print(f"[配置加载] App ID 加载成功: {APP_ID}")
 
 def get_llm_client():
     """
-    初始化并返回LLM客户端配置信息
-    注意：使用阿里云百炼智能体应用时，不需要返回客户端对象，
-    而是直接使用 Application.call() 方法调用
+    初始化并返回LLM客户端配置信息。
+    在云环境中，如果配置不完整，返回 None，让调用者处理。
     """
-    # 验证配置
-    if API_KEY == "YOUR_DASHSCOPE_API_KEY" or APP_ID == "YOUR_APP_ID":
-        print("警告：请配置 DASHSCOPE_API_KEY 和 APP_ID")
-        print("  方式1：创建 config_local.py 文件并设置 DASHSCOPE_API_KEY 和 APP_ID")
-        print("  方式2：设置环境变量 DASHSCOPE_API_KEY 和 APP_ID")
+    # 再次验证配置是否完整
+    if not API_KEY or not APP_ID:
+        print("警告：由于 API Key 或 App ID 缺失，无法初始化LLM客户端。")
         return None
     
     return {
         "api_key": API_KEY,
         "app_id": APP_ID
     }
-
 
