@@ -27,7 +27,7 @@ app = FastAPI(
 # ============================================
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # 云部署时允许所有来源
+    allow_origins=["*"],  # 云部署时允许所有来源，最方便的配置
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -386,12 +386,10 @@ if __name__ == "__main__":
     print("=" * 60)
     print("灵辑 API 服务器启动中...")
     print("=" * 60)
-    print(f"API文档地址: http://0.0.0.0:{port}/docs")
-    print(f"API根路径: http://0.0.0.0:{port}/")
-    print(f"聊天接口: http://0.0.0.0:{port}/api/chat")
-    print(f"文档列表: http://0.0.0.0:{port}/api/documents")
+    print(f"API文档地址: http://0.0.0.0:{port}/docs" )
+    print(f"API根路径: http://0.0.0.0:{port}/" )
+    print(f"聊天接口: http://0.0.0.0:{port}/api/chat" )
+    print(f"文档列表: http://0.0.0.0:{port}/api/documents" )
     print("=" * 60)
     # 云部署时使用 0.0.0.0 监听所有网络接口
     uvicorn.run(app, host="0.0.0.0", port=port, log_level="info")
-
-
