@@ -1,0 +1,16 @@
+# Render.com 部署配置
+services:
+  - type: web
+    name: smart-clip-api
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: python api_server.py
+    envVars:
+      - key: DASHSCOPE_API_KEY
+        sync: false  # 需要在 Render 控制台手动设置
+      - key: APP_ID
+        sync: false  # 需要在 Render 控制台手动设置
+      - key: PORT
+        value: 8000
+
+

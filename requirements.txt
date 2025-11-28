@@ -1,0 +1,15 @@
+# 灵辑 (Smart Clip) - Python 依赖包
+# 安装方法: pip install -r requirements.txt
+
+# FastAPI 相关
+fastapi>=0.104.0
+uvicorn[standard]>=0.24.0
+pydantic>=2.0.0
+
+# 阿里云 DashScope SDK (用于LLM调用)
+dashscope>=1.14.0
+
+# 其他依赖
+python-dotenv>=1.0.0  # 用于加载环境变量（如果使用.env文件）
+
+
